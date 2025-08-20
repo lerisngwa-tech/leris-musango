@@ -14,6 +14,114 @@ Musango Express is a comprehensive enterprise-grade ticket management platform d
 
 <img width="1388" height="823" alt="image" src="https://github.com/user-attachments/assets/123cf20d-937c-4844-9947-56b9021da977" />
 
+## 🏗️ Architecture Overview
+
+```mermaid
+graph TB
+    %% External Services
+    subgraph "External Services"
+        USER[End User]
+        SMTP[SMTP Service]
+        MongoDBExt[MongoDB Atlas<br/>Optional Cloud DB]
+    end
+
+    %% Load Balancer Layer
+    subgraph "Load Balancer Layer"
+        LB[Application Load Balancer]
+    end
+
+    %% Application Layer
+    subgraph "Kubernetes Cluster - Application Layer"
+        subgraph "Musango Namespace"
+            subgraph "Musango Deployment"
+                POD1[Musango Pod 1<br/>Node.js + Express]
+                POD2[Musango Pod 2<br/>Node.js + Express]
+                POD3[Musango Pod 3<br/>Node.js + Express]
+            end
+            
+            subgraph "Musango Service"
+                SVC[ClusterIP Service<br/>Port 8080]
+            end
+            
+            subgraph "PDF Generation"
+                PUPPETEER[Puppeteer<br/>PDF Generation Service]
+            end
+            
+            subgraph "Email Service"
+                NODEMAILER[Nodemailer<br/>Email Processing]
+            end
+        end
+    end
+
+    %% Data Layer
+    subgraph "Kubernetes Cluster - Data Layer"
+        subgraph "Database Namespace"
+            subgraph "MongoDB Deployment"
+                MONGOPOD[MongoDB Pod<br/>mongo:6]
+            end
+            
+            subgraph "MongoDB Service"
+                MONGOSVC[ClusterIP Service<br/>Port 27017]
+            end
+            
+            subgraph "Persistent Storage"
+                PVC[(Persistent Volume<br/>Ticket Data)]
+            end
+        end
+    end
+
+    %% Monitoring Layer
+    subgraph "Monitoring Layer"
+        subgraph "Monitoring Namespace"
+            PROM[Prometheus<br/>Metrics Collection]
+            GRAFANA[Grafana<br/>Dashboard Visualization]
+            LOKI[Loki<br/>Log Aggregation]
+        end
+    end
+
+    %% Internal Connections
+    POD1 --> SVC
+    POD2 --> SVC
+    POD3 --> SVC
+    SVC --> PUPPETEER
+    SVC --> NODEMAILER
+    SVC --> MONGOSVC
+    MONGOSVC --> MONGOPOD
+    MONGOPOD --> PVC
+    
+    %% External Connections
+    USER --> LB
+    LB --> SVC
+    SVC --> SMTP
+    SVC -.-> MongoDBExt
+    
+    %% Monitoring Connections
+    POD1 -.-> PROM
+    POD2 -.-> PROM
+    POD3 -.-> PROM
+    MONGOPOD -.-> PROM
+    PROM --> GRAFANA
+    POD1 -.-> LOKI
+    POD2 -.-> LOKI
+    POD3 -.-> LOKI
+
+    %% Styling
+    classDef external fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef loadbalancer fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
+    classDef app fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef data fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef monitoring fill:#fff9c4,stroke:#f57f17,stroke-width:2px;
+    classDef service fill:#bbdefb,stroke:#1565c0,stroke-width:2px;
+    classDef storage fill:#d7ccc8,stroke:#4e342e,stroke-width:2px;
+
+    class USER,SMTP,MongoDBExt external;
+    class LB loadbalancer;
+    class POD1,POD2,POD3,PUPPETEER,NODEMAILER app;
+    class MONGOPOD data;
+    class PROM,GRAFANA,LOKI monitoring;
+    class SVC,MONGOSVC service;
+    class PVC storage;
+```
 
 ## Features
 
