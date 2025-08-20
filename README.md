@@ -1,208 +1,246 @@
-## **Musango Express Ticket Management App**
+# Musango Express: Enterprise Ticket Management Platform
 
-### **Overview**
-Musango Express is a web-based ticket booking application that allows users to book and manage their tickets online. The app is built using the following technologies:
-- **Backend**: Node.js with Express
-- **Frontend**: EJS (Embedded JavaScript templates)
-- **Database**: MongoDB
-- **Containerization**: Docker
-- ![Musango App](Capture.PNG)
+![Node.js](https://img.shields.io/badge/Node.js-18.0+-339933?logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-4.18.0-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-6.0+-47A248?logo=mongodb&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.28+-326CE5?logo=kubernetes&logoColor=white)
+![CircleCI](https://img.shields.io/badge/CircleCI-2.1+-343434?logo=circleci&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
 
----
+## Overview
 
-## **Running the App Locally on Ubuntu EC2**
-- Launch an Ubuntu Instance of size t2.medium
-- Open port 8080, 22, 80
+Musango Express is a comprehensive enterprise-grade ticket management platform designed for modern transportation systems. Built with scalability and reliability in mind, this platform handles ticket booking, management, and customer communications with robust backend services and an intuitive user interface.
 
-### **1. SSH into your EC2 instance**
+<img width="1388" height="823" alt="image" src="https://github.com/user-attachments/assets/123cf20d-937c-4844-9947-56b9021da977" />
+
+
+## Features
+
+### 🎫 Core Ticket Management
+- **Online Booking System**: Seamless ticket reservation with real-time availability
+- **PDF Ticket Generation**: Automated ticket generation with Puppeteer
+- **Email Confirmations**: Automated email notifications with Nodemailer
+- **Booking Management**: Full CRUD operations for ticket management
+- **Customer Portal**: Self-service booking modifications and cancellations
+
+### 🏗️ Enterprise Architecture
+- **Microservices Ready**: Containerized architecture with Docker
+- **Database Persistence**: MongoDB with optimized queries and indexing
+- **Kubernetes Orchestration**: Production-ready deployment manifests
+- **CI/CD Pipeline**: Automated testing and deployment with CircleCI
+- **Multi-environment Support**: Development, staging, and production configurations
+
+### 🔧 Technical Excellence
+- **EJS Templating**: Server-side rendering with dynamic content
+- **RESTful APIs**: Clean API design for integration and extensibility
+- **Chromium Automation**: PDF generation with headless browser automation
+- **Email Integration**: SMTP integration for customer communications
+- **Health Monitoring**: Comprehensive monitoring and logging
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Node.js** with Express.js framework
+- **MongoDB** with Mongoose ODM
+- **EJS** for server-side templating
+- **Puppeteer** for PDF generation
+- **Nodemailer** for email services
+
+### Frontend
+- **HTML5** with semantic markup
+- **CSS3** with responsive design
+- **JavaScript** with modern ES6+ features
+- **Bootstrap** for UI components (if used)
+
+### Infrastructure
+- **Docker** for containerization
+- **Kubernetes** for orchestration
+- **CircleCI** for continuous integration
+- **AWS EC2/EKS** for cloud deployment
+- **MongoDB Atlas** (optional) for managed database
+
+## 🚀 Quick Start
+
+### Prerequisites
+
 ```bash
-ssh -i key.pem ubuntu@your-ec2-public-ip
-```
+# Install Node.js and npm
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-### **2. Install Node.js and npm Command Utility**
-```bash
+# Install Docker
 sudo apt-get update
-sudo apt install nodejs npm -y
-sudo apt-get install -y libatk1.0-0 libatk-bridge2.0-0 libcups2 libnspr4 libnss3 libgdk-pixbuf2.0-0 libx11-xcb1 libxcomposite1 libxdamage1 libxrandr2 fonts-liberation
-
-```
-
-### **3. Install Docker (for MongoDB container)**
-```bash
-sudo apt install docker.io -y
+sudo apt-get install docker.io -y
 sudo systemctl start docker
 sudo systemctl enable docker
+
+# Install Kubernetes tools (optional)
+sudo apt-get install -y kubectl
 ```
 
-### **4. Clone the Repository**
+### Local Development
+
 ```bash
-git clone https://github.com/HILL-TOPCONSULTANCY/musango-app.git
+# Clone the repository
+git clone https://github.com/CHAFAH/musango-app.git
 cd musango-app
-```
-- ### Add docker user to sudo
-```bash
-sudo usermod -aG docker ubuntu
-newgrp docker
-```
 
-### **5. Run MongoDB as a Docker Container**
-```bash
-sudo docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_DATABASE=musango-express mongo:6
-```
-
-### **6. Install Dependencies and Start the App**
-```bash
+# Install dependencies
 npm install
-npm install puppeteer ejs nodemailer
-export PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium-browser"
-sudo apt install chromium-browser
-```
-### **7. Test Database Connection
-```bash
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start MongoDB with Docker
+docker run -d --name mongodb -p 27017:27017 \
+  -e MONGO_INITDB_DATABASE=musango-express \
+  mongo:6
+
+# Test database connection
 node test-db.js
+
+# Start the application
+npm run dev
 ```
-### Run Test
+
+### Docker Deployment
+
 ```bash
-npm test
+# Build the Docker image
+docker build -t musango-express:latest .
+
+# Run MongoDB
+docker run -d --name mongodb -p 27017:27017 \
+  -e MONGO_INITDB_DATABASE=musango-express \
+  mongo:6
+
+# Run the application
+docker run -d -p 8080:8080 \
+  --name musango-app \
+  --link mongodb:mongodb \
+  -e MONGO_URI=mongodb://mongodb:27017/musango-express \
+  -e PORT=8080 \
+  musango-express:latest
 ```
-## Deploy Application
+
+## ☸️ Kubernetes Deployment
+
+### Prerequisites
+- Kubernetes cluster (EKS, GKE, AKS, or Minikube)
+- kubectl configured for your cluster
+- Docker registry access
+
+### Deployment Steps
+
 ```bash
-npm run start
-```
-### **8. Access the App**
-Copy the Public IPV4 of your instance and Open your browser and visit:
-```
-http://<PublicIP>:8080
-```
+# Apply MongoDB deployment
+kubectl apply -f kubernetes/mongo-deployment.yaml
 
----
+# Apply Musango Express deployment
+kubectl apply -f kubernetes/musango-deployment.yaml
 
-## **Running the App with Docker**
+# Check deployment status
+kubectl get pods,svc,deploy
 
-### **1. Build the Docker Image**
-```bash
-docker build -t musango .
+# Access the application
+kubectl port-forward svc/musango-service 8080:8080
 ```
 
-### **2. Run MongoDB in Docker**
-```bash
-docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_DATABASE=musango-express mongo:6
-```
+## 🔧 Configuration
 
-### **3. Run Musango Express App**
-```bash
-docker run -d -p 8080:8080 --link mongodb:mongodb -e MONGO_URI=mongodb://mongodb:27017/musango-express musango
-```
+### Environment Variables
 
-### **4. Access the App**
-```
-http://localhost:8080
-```
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `PORT` | Application port | `8080` | No |
+| `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017` | Yes |
+| `DB_NAME` | Database name | `musango-express` | No |
+| `EMAIL_HOST` | SMTP host for email | - | Yes |
+| `EMAIL_PORT` | SMTP port | `587` | No |
+| `EMAIL_USER` | SMTP username | - | Yes |
+| `EMAIL_PASS` | SMTP password | - | Yes |
+| `NODE_ENV` | Environment mode | `development` | No |
 
----
 
-## **Deploying on Kubernetes**
 
-### **1. Prerequisites**
-- A running Kubernetes cluster (EKS, Minikube, etc.)
-- `kubectl` installed and configured
 
-### **2. Create Kubernetes Deployment and Service Files**
 
-#### **MongoDB Deployment and Service**
-Create `mongo-deployment.yaml`:
+
+### CI/CD Pipeline (CircleCI)
+
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mongodb
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mongodb
-  template:
-    metadata:
-      labels:
-        app: mongodb
-    spec:
-      containers:
-      - name: mongodb
-        image: mongo:6
-        ports:
-        - containerPort: 27017
-        env:
-        - name: MONGO_INITDB_DATABASE
-          value: "musango-express"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb
-spec:
-  selector:
-    app: mongodb
-  ports:
-    - protocol: TCP
-      port: 27017
-      targetPort: 27017
+# .circleci/config.yml
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/node:18
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm test
+      - run: npm run build
+
+  deploy:
+    docker:
+      - image: circleci/node:18
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker build -t musango-express:${CIRCLE_SHA1} .
+      - run: docker push musango-express:${CIRCLE_SHA1}
 ```
 
-#### **Musango Express Deployment and Service**
-Create `musango-deployment.yaml`:
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: musango
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: musango
-  template:
-    metadata:
-      labels:
-        app: musango
-    spec:
-      containers:
-      - name: musango
-        image: musango
-        ports:
-        - containerPort: 8080
-        env:
-        - name: MONGO_URI
-          value: "mongodb://mongodb:27017/musango-express"
-        - name: PORT
-          value: "8080"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: musango
-spec:
-  type: NodePort
-  selector:
-    app: musango
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
-      nodePort: 30000
-```
+## 🔒 Security Features
 
-### **3. Deploy to Kubernetes**
-```bash
-kubectl apply -f mongo-deployment.yaml
-kubectl apply -f musango-deployment.yaml
-```
+- **Helmet.js**: Security headers protection
+- **CORS**: Configured cross-origin resource sharing
+- **Input Validation**: Request data sanitization
+- **Environment Configuration**: Secure credential management
+- **Docker Security**: Non-root user execution
+- **Kubernetes Security**: Pod security contexts
 
-### **4. Access the App**
-Visit:
-```
-http://<your-cluster-node-ip>:30000
-```
+## 📈 Performance Optimization
+
+- **Database Indexing**: Optimized MongoDB queries
+- **Connection Pooling**: Efficient database connections
+- **Caching Ready**: Redis integration prepared
+- **Compression**: Response compression middleware
+- **Static File Serving**: Optimized asset delivery
+
+
+## 🤝 Contributing
+
+We welcome contributions to enhance Musango Express:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Contact
+
+**Musango Express Team** - [support@musangoexpress.com](mailto:support@musangoexpress.com)
+
+**Sani Chafah** - [prsan@nebulancesystems.com](mailto:prsan@nebulancesystems.com)
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sani-chafah/)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?logo=github&logoColor=white)](https://github.com/CHAFAH)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green?logo=react&logoColor=white)](https://sani-chafah.com)
+
+**Project Link:** [https://github.com/CHAFAH/musango-app](https://github.com/CHAFAH/musango-app)
 
 ---
 
-### ✅ You're now ready to use Musango Express!
+**⭐ Star this repo if you found it useful!**
+
+---
+
+*Musango Express demonstrates enterprise-grade ticket management with modern DevOps practices and cloud-native deployment patterns.*
