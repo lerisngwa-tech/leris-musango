@@ -1,18 +1,15 @@
-name: deploy to production
+name: ci cd pipelinelsls
 on:
   push:
     branches:
-      - main
+      - develop
 
     
 jobs:
   build:
-    name: package application
-    runs-on: ubuntu-latest
-    needs: {other jobs}
-    if:  github.ref == 'refs/heads/main'
-
-    steps:
+      runs-on: ubuntu-latest
+    
+      steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -22,10 +19,10 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Run tests
-        run: pnpm test
+        run: npm test
 
-      
-      
+
+    
