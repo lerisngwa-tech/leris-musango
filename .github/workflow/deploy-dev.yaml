@@ -64,7 +64,7 @@ jobs:
           #connect to eks cluster
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --name landmark-eks-cluster--region us-east-1
+          aws eks update-kubeconfig --name landmark-eks-cluster --region us-east-1
 
       - name: Deploy to Kubernetes
         run: |
