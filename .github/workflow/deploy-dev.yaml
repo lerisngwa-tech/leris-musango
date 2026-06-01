@@ -71,3 +71,7 @@ jobs:
         run: |
           kubectl apply -f mongo.yaml
           kubectl apply -f musango.yaml
+
+          #verify deployment
+          kubectl rollout status deployment/mongodb
+          kubectl rollout status deployment/musango
