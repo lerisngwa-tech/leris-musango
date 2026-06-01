@@ -43,7 +43,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: 
+          context: .
           push: true
           tags: lerisngwa/landmarkapp:v1
 
@@ -61,7 +61,8 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          #connect to eks cluster
+
+      # connect to eks cluster
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig --name landmark-eks-cluster --region us-east-1
