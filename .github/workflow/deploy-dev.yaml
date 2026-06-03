@@ -1,22 +1,24 @@
-name: ci cd pipelinelsls
+name: ci cd pipeline
 on:
   push:
     branches:
       - develop
 
-    
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
-      runs-on: ubuntu-latest
-    
-      steps:
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         run: npm install
@@ -24,5 +26,57 @@ jobs:
       - name: Run tests
         run: npm test
 
+  containerize:
+    runs-on: ubuntu-latest
+    needs: build
 
-    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: lerisngwa/landmarkapp:v1
+
+  deploy-to-kubernetes:
+    runs-on: ubuntu-latest
+    needs: containerize
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: configure aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # connect to eks cluster
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name landmark-eks-cluster --region us-east-1
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f mongo.yaml
+          kubectl apply -f musango.yaml
+          # verify deployment
+          kubectl rollout status deployment/mongodb
+          kubectl rollout status deployment/musango

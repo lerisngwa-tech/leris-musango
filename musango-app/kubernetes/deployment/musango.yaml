@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: musango
-        image: hilltopconsultancy/musango:v1
+        image: lerisngwa/landmarkapp:v1
         ports:
         - containerPort: 8082
         env:
